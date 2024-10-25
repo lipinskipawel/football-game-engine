@@ -1,1 +1,1 @@
-rootProject.name = "game-engine"
+rootProject.name = "football-game-engine"
