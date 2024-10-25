@@ -8,6 +8,7 @@ import com.github.lipinskipawel.board.engine.Move;
 
 import java.time.Duration;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -42,9 +43,7 @@ final class MiniMaxAlphaBeta implements MoveStrategy {
         this.cancel = false;
     }
 
-    @Override
-    public Move searchForTheBestMove(Board<?> board) {
-        final var pool = Executors.newSingleThreadExecutor();
+    Move searchForTheBestMove(Board<?> board, ExecutorService pool) {
         final var copy = new MiniMaxAlphaBeta(this);
         final var searchingForMove = pool.submit(
             () -> copy.execute(board, copy.depth)
@@ -55,6 +54,14 @@ final class MiniMaxAlphaBeta implements MoveStrategy {
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             copy.cancel = true;
             return copy.bestMove.get();
+        }
+    }
+
+    @Override
+    public Move searchForTheBestMove(Board<?> board) {
+        final var pool = Executors.newSingleThreadExecutor();
+        try {
+            return searchForTheBestMove(board, pool);
         } finally {
             pool.shutdown();
         }
