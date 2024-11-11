@@ -7,28 +7,23 @@ on:
     branches: [ master ]
 
 jobs:
-  validation:
-    name: Validation
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: gradle/wrapper-validation-action@v1
-
   build:
     name: Building project
-    needs: validation
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout sources
+        uses: actions/checkout@v4
       - name: Set up JDK 11
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: 11
-          distribution: temurin
+          distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+      - name: Setup Gradle 7.4.2
+        uses: gradle/actions/setup-gradle@v4
+        with:
+            gradle-version: "7.4.2"
 
       - name: Execute Gradle build
         run: ./gradlew build
