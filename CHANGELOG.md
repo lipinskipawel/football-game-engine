@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## 6.0.0 - 2023.10.19
 
+### Changed
+
+- all packages are now starting with `io` instead of `com`
+- module name is now `football.game.engine` instead of `game.engine`
+
 ### Removed
 
 - remove slf4j dependency. It is still possible to have access to library logs just by using SPI [Logger] interface

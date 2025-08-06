@@ -5,9 +5,9 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin") version ("1.3.0")
 }
 
-group = "com.github.lipinskipawel"
+group = "io.github.lipinskipawel"
 version = "6.0.0"
-description = "game-engine"
+description = "football-game-engine"
 
 repositories {
     mavenCentral()
@@ -31,16 +31,19 @@ java {
 
 nexusPublishing {
     repositories {
-        sonatype()
+        sonatype {
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+        }
     }
 }
 
 publishing {
     publications.create<MavenPublication>("mavenJava") {
         pom {
-            name.set("game-engine")
+            name.set("football-game-engine")
             description.set("This is engine for 2D football game")
-            url.set("https://github.com/lipinskipawel/game-engine")
+            url.set("https://github.com/lipinskipawel/football-game-engine")
             licenses {
                 license {
                     name.set("MIT License")
@@ -53,9 +56,9 @@ publishing {
                 }
             }
             scm {
-                connection.set("scm:git:ssh://git@github.com/lipinskipawel/game-engine.git")
-                developerConnection.set("scm:git:ssh://git@github.com/lipinskipawel/game-engine.git")
-                url.set("git@github.com:lipinskipawel/game-engine")
+                connection.set("scm:git:ssh://git@github.com/lipinskipawel/football-game-engine.git")
+                developerConnection.set("scm:git:ssh://git@github.com/lipinskipawel/football-game-engine.git")
+                url.set("https://github.com/lipinskipawel/football-game-engine.git")
             }
         }
         from(components["java"])

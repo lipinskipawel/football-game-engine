@@ -1,10 +1,10 @@
-module game.engine {
-    exports com.github.lipinskipawel.board.spi;
-    exports com.github.lipinskipawel.board.engine;
-    exports com.github.lipinskipawel.board.ai;
-    exports com.github.lipinskipawel.board.ai.bruteforce;
-    exports com.github.lipinskipawel.board.engine.exception;
+module football.game.engine {
+    exports io.github.lipinskipawel.board.spi;
+    exports io.github.lipinskipawel.board.engine;
+    exports io.github.lipinskipawel.board.ai;
+    exports io.github.lipinskipawel.board.ai.bruteforce;
+    exports io.github.lipinskipawel.board.engine.exception;
 
-    opens com.github.lipinskipawel.board.engine;
-    opens com.github.lipinskipawel.board.ai.bruteforce;
+    opens io.github.lipinskipawel.board.engine;
+    opens io.github.lipinskipawel.board.ai.bruteforce;
 }
