@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.lipinskipawel"
-version = "7.0.0"
+version = "7.0.2"
 description = "football-game-engine"
 
 repositories {
