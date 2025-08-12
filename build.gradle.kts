@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("com.github.lipinskipawel:football-platform:1.+"))
+    implementation(platform("com.github.lipinskipawel:football-platform:(1.0.0, 2.0.0)"))
 
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
