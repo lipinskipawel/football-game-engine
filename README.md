@@ -1,5 +1,5 @@
-![build master](https://github.com/lipinskipawel/game-engine/actions/workflows/build.yml/badge.svg?branch=master)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.lipinskipawel/game-engine/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.lipinskipawel/game-engine)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/lipinskipawel/football-game-engine/build.yml?logo=github&style=flat-square&branch=master&label=Build%20game%20engine)
+![Maven Central Version](https://img.shields.io/maven-central/v/io.github.lipinskipawel/football-game-engine)
 
 # Game engine
 

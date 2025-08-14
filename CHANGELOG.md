@@ -7,12 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## 6.0.0 - 2023.10.19
+## 7.0.2 - 2025.08.13
 
 ### Changed
 
 - all packages are now starting with `io` instead of `com`
 - module name is now `football.game.engine` instead of `game.engine`
+
+## 6.0.0 - 2023.10.19
 
 ### Removed
 
