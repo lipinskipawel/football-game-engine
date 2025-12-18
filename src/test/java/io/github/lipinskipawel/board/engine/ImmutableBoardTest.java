@@ -8,9 +8,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static io.github.lipinskipawel.board.internal.FootballBitBoard.legalMoves;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -291,6 +294,59 @@ class ImmutableBoardTest {
                 .undo();
 
             Assertions.assertThat(undoAllMoves).isEqualToComparingFieldByFieldRecursively(board);
+        }
+
+        @Test
+        @DisplayName("big snail football field")
+        void big_snail_testing_bitboard() {
+            final var afterMove = board
+                .executeMove(Direction.N)
+                .executeMove(Direction.W)
+                .executeMove(Direction.S)
+                .executeMove(Direction.S)
+                .executeMove(Direction.E)
+                .executeMove(Direction.E)
+                .executeMove(Direction.N)
+                .executeMove(Direction.N)
+                .executeMove(Direction.N)
+                .executeMove(Direction.W)
+                .executeMove(Direction.W)
+                .executeMove(Direction.W)
+                .executeMove(Direction.S)
+                .executeMove(Direction.S)
+                .executeMove(Direction.S);
+//                .executeMove(Direction.S)
+//                .executeMove(Direction.E)
+//                .executeMove(Direction.E)
+//                .executeMove(Direction.E)
+//                .executeMove(Direction.E);
+//                .executeMove(Direction.N)
+//                .executeMove(Direction.N)
+//                .executeMove(Direction.N)
+//                .executeMove(Direction.N)
+//                .executeMove(Direction.N)
+//                .executeMove(Direction.W);
+
+            final var futureLegalMoves = afterMove.allLegalMovesFuture();
+
+            var l = System.nanoTime();
+            var legalMoves = findAllLegalMoves(futureLegalMoves);
+            var l1 = System.nanoTime();
+            var diff = (l1 - l) / 1_000_000;
+            System.out.println("Time took in seconds: " + diff);
+
+            Assertions.assertThat(legalMoves.size()).isEqualTo(2957071);
+        }
+
+        private List<Move> findAllLegalMoves(LegalMovesFuture legalMovesFuture) {
+            legalMovesFuture.start(Duration.ofMinutes(2));
+            final var allMoves = new ArrayList<Move>();
+
+            while (legalMovesFuture.isRunning()) {
+                allMoves.addAll(legalMovesFuture.partialResult());
+            }
+            allMoves.addAll(legalMovesFuture.partialResult());
+            return allMoves;
         }
 
         @Test
