@@ -21,13 +21,19 @@ jobs:
         with:
             java-version: 11
             distribution: 'temurin'
-      - name: Setup Gradle 7.4.2
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-            gradle-version: "7.4.2"
-      - run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+            gradle-version: "wrapper" # "8.14.3"
+
+      - name: Extract version from tag
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
       - run: ./gradlew assemble
-      - run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
+      - run: ./gradlew :game:publishToSonatype :game:closeAndReleaseSonatypeStagingRepository
         env:
           ORG_GRADLE_PROJECT_version: ${{ env.VERSION }}
           ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.OSSRH_USERNAME }}

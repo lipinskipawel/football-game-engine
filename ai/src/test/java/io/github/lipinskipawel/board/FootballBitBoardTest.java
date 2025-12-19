@@ -1,22 +1,22 @@
-package io.github.lipinskipawel.board.internal;
+package io.github.lipinskipawel.board;
 
 import org.assertj.core.api.WithAssertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static io.github.lipinskipawel.board.internal.FootballBitBoard.Direction.E;
-import static io.github.lipinskipawel.board.internal.FootballBitBoard.Direction.N;
-import static io.github.lipinskipawel.board.internal.FootballBitBoard.Direction.NE;
-import static io.github.lipinskipawel.board.internal.FootballBitBoard.Direction.NW;
-import static io.github.lipinskipawel.board.internal.FootballBitBoard.Direction.S;
-import static io.github.lipinskipawel.board.internal.FootballBitBoard.Direction.SE;
-import static io.github.lipinskipawel.board.internal.FootballBitBoard.Direction.SW;
-import static io.github.lipinskipawel.board.internal.FootballBitBoard.Direction.W;
-import static io.github.lipinskipawel.board.internal.FootballBitBoard.boardToString;
-import static io.github.lipinskipawel.board.internal.FootballBitBoard.executeMove;
-import static io.github.lipinskipawel.board.internal.FootballBitBoard.init;
-import static io.github.lipinskipawel.board.internal.FootballBitBoard.legalMoves;
+import static io.github.lipinskipawel.board.FootballBitBoard.Direction.E;
+import static io.github.lipinskipawel.board.FootballBitBoard.Direction.N;
+import static io.github.lipinskipawel.board.FootballBitBoard.Direction.NE;
+import static io.github.lipinskipawel.board.FootballBitBoard.Direction.NW;
+import static io.github.lipinskipawel.board.FootballBitBoard.Direction.S;
+import static io.github.lipinskipawel.board.FootballBitBoard.Direction.SE;
+import static io.github.lipinskipawel.board.FootballBitBoard.Direction.SW;
+import static io.github.lipinskipawel.board.FootballBitBoard.Direction.W;
+import static io.github.lipinskipawel.board.FootballBitBoard.boardToString;
+import static io.github.lipinskipawel.board.FootballBitBoard.executeMove;
+import static io.github.lipinskipawel.board.FootballBitBoard.init;
+import static io.github.lipinskipawel.board.FootballBitBoard.legalMoves;
 
 final class FootballBitBoardTest implements WithAssertions {
 

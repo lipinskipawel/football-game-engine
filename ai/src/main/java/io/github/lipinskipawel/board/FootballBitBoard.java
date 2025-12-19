@@ -1,9 +1,9 @@
-package io.github.lipinskipawel.board.internal;
+package io.github.lipinskipawel.board;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FootballBitBoard {
+public final class FootballBitBoard {
 
     // Constants
     private static final int GRID_WIDTH = 9;
