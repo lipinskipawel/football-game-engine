@@ -54,33 +54,52 @@ public final class FootballBitBoard {
         SOUTH, NORTH
     }
 
+    // Board state fields
+    // indexes [0,1] -> represents direction N for 117 notes
+    // indexes [2,3] -> represents direction NE for 117 notes
+    // and so on
+    private final long[] dirMask;         // 16 longs: 8 directions × 2 longs each
+    private final long[] visited;         // 2 longs for visited nodes
+    private int ballPosition;             // Direct ball position (0-116)
+    private Player activePlayer;
+
     /**
-     * Game state using long[] bitboards
+     * Private constructor for copying
      */
-    public static class Board {
-        // indexes [0,1] -> represents direction N for 117 notes
-        // indexes [2,3] -> represents direction NE for 117 notes
-        // and so on
-        long[] dirMask;         // 16 longs: 8 directions × 2 longs each
-        long[] visited;         // 2 longs for visited nodes
-        int ballPosition;       // Direct ball position (0-116)
-        Player activePlayer;
+    private FootballBitBoard() {
+        dirMask = new long[TOTAL_DIR_LONGS];
+        visited = new long[LONGS_PER_BITBOARD];
+        ballPosition = -1;
+        activePlayer = Player.SOUTH;
+    }
 
-        public Board() {
-            dirMask = new long[TOTAL_DIR_LONGS];
-            visited = new long[LONGS_PER_BITBOARD];
-            ballPosition = -1;
-            activePlayer = Player.SOUTH;
+    /**
+     * Public constructor - initializes board with starting position
+     */
+    public FootballBitBoard(boolean initialize) {
+        this();
+        if (initialize) {
+            initializeBoard();
         }
+    }
 
-        public Board copy() {
-            Board copy = new Board();
-            System.arraycopy(this.dirMask, 0, copy.dirMask, 0, TOTAL_DIR_LONGS);
-            System.arraycopy(this.visited, 0, copy.visited, 0, LONGS_PER_BITBOARD);
-            copy.ballPosition = this.ballPosition;
-            copy.activePlayer = this.activePlayer;
-            return copy;
-        }
+    /**
+     * Copy constructor
+     */
+    private FootballBitBoard(FootballBitBoard other) {
+        this.dirMask = new long[TOTAL_DIR_LONGS];
+        this.visited = new long[LONGS_PER_BITBOARD];
+        System.arraycopy(other.dirMask, 0, this.dirMask, 0, TOTAL_DIR_LONGS);
+        System.arraycopy(other.visited, 0, this.visited, 0, LONGS_PER_BITBOARD);
+        this.ballPosition = other.ballPosition;
+        this.activePlayer = other.activePlayer;
+    }
+
+    /**
+     * Create a copy of this board
+     */
+    public FootballBitBoard copy() {
+        return new FootballBitBoard(this);
     }
 
     // ============= BITBOARD OPERATIONS =============
@@ -88,7 +107,7 @@ public final class FootballBitBoard {
     /**
      * Set a bit in a direction mask
      */
-    private static void setDirBit(long[] dirMask, int dirIndex, int node) {
+    private void setDirBit(int dirIndex, int node) {
         int longIndex = (dirIndex << 1) + (node >>> 6);  // dirIndex * 2 + node / 64
         dirMask[longIndex] |= (1L << node);
     }
@@ -96,7 +115,7 @@ public final class FootballBitBoard {
     /**
      * Clear a bit in a direction mask
      */
-    private static void clearDirBit(long[] dirMask, int dirIndex, int node) {
+    private void clearDirBit(int dirIndex, int node) {
         int longIndex = (dirIndex << 1) + (node >>> 6);
         dirMask[longIndex] &= ~(1L << node);
     }
@@ -104,7 +123,7 @@ public final class FootballBitBoard {
     /**
      * Test a bit in a direction mask
      */
-    private static boolean testDirBit(long[] dirMask, int dirIndex, int node) {
+    private boolean testDirBit(int dirIndex, int node) {
         // Note: (1L << node) works because Java only uses the lower 6 bits of the shift amount for long, so node % 64 is implicit!
         int longIndex = (dirIndex << 1) + (node >>> 6);
         return (dirMask[longIndex] & (1L << node)) != 0;
@@ -113,15 +132,15 @@ public final class FootballBitBoard {
     /**
      * Set a bit in visited mask
      */
-    private static void setBit(long[] mask, int node) {
-        mask[node >>> 6] |= (1L << node);
+    private void setBit(int node) {
+        visited[node >>> 6] |= (1L << node);
     }
 
     /**
      * Test a bit in visited mask
      */
-    private static boolean testBit(long[] mask, int node) {
-        return (mask[node >>> 6] & (1L << node)) != 0;
+    private boolean testBit(int node) {
+        return (visited[node >>> 6] & (1L << node)) != 0;
     }
 
     // ============= FIELD STRUCTURE (same as original) =============
@@ -304,11 +323,9 @@ public final class FootballBitBoard {
     // ============= INITIALIZATION =============
 
     /**
-     * Initialize board with starting position
+     * Initialize this board with starting position
      */
-    public static Board init() {
-        Board board = new Board();
-
+    private void initializeBoard() {
         // Initialize direction masks based on valid neighbors from the field structure
         for (int node = 0; node < TOTAL_NODES; node++) {
             int x = node % GRID_WIDTH;
@@ -318,7 +335,7 @@ public final class FootballBitBoard {
 
             for (Direction dir : Direction.values()) {
                 if (neighborIndex[node][dir.index] != -1) {
-                    setDirBit(board.dirMask, dir.index, node);
+                    setDirBit(dir.index, node);
                 }
             }
         }
@@ -346,20 +363,52 @@ public final class FootballBitBoard {
             }
 
             if (isWall) {
-                setBit(board.visited, node);
+                setBit(node);
             }
         }
 
         // Initial ball position: (4, 6)
         int startNode = coordToIndex(4, 6);
-        board.ballPosition = startNode;
-        setBit(board.visited, startNode);
-        board.activePlayer = Player.SOUTH;
-
-        return board;
+        ballPosition = startNode;
+        setBit(startNode);
+        activePlayer = Player.SOUTH;
     }
 
     // ============= UTILITY METHODS =============
+
+    /**
+     * Get current ball position
+     */
+    public int getBallPosition() {
+        return ballPosition;
+    }
+
+    /**
+     * Get active player
+     */
+    public Player getActivePlayer() {
+        return activePlayer;
+    }
+
+    /**
+     * Check if direction is available from node
+     */
+    private boolean isDirOpen(int node, Direction dir) {
+        return testDirBit(dir.index, node);
+    }
+
+    /**
+     * Check if node has any outgoing edges
+     */
+    private boolean outgoingExists(int node) {
+        // Check all 8 directions
+        for (Direction dir : Direction.values()) {
+            if (testDirBit(dir.index, node)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Convert coordinates to bit index
@@ -380,33 +429,6 @@ public final class FootballBitBoard {
      */
     private static int indexToY(int index) {
         return index / GRID_WIDTH;
-    }
-
-    /**
-     * Get current ball position
-     */
-    private static int getBallPosition(Board board) {
-        return board.ballPosition;
-    }
-
-    /**
-     * Check if direction is available from node
-     */
-    private static boolean isDirOpen(Board board, int node, Direction dir) {
-        return testDirBit(board.dirMask, dir.index, node);
-    }
-
-    /**
-     * Check if node has any outgoing edges
-     */
-    private static boolean outgoingExists(Board board, int node) {
-        // Check all 8 directions
-        for (Direction dir : Direction.values()) {
-            if (testDirBit(board.dirMask, dir.index, node)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -433,18 +455,18 @@ public final class FootballBitBoard {
      * Get all legal move sequences from current position.
      * Each move is a complete sequence that ends the current player's turn.
      */
-    public static List<List<Direction>> legalMoves(Board board) {
+    public List<List<Direction>> legalMoves() {
         List<List<Direction>> allMoves = new ArrayList<>();
-        int startPos = getBallPosition(board);
+        int startPos = getBallPosition();
 
         if (startPos == -1) return allMoves;
 
         // Try each initial direction
         for (Direction dir : Direction.values()) {
-            if (isDirOpen(board, startPos, dir)) {
+            if (isDirOpen(startPos, dir)) {
                 List<Direction> path = new ArrayList<>();
                 path.add(dir);
-                exploreMoves(board.copy(), path, allMoves);
+                exploreMoves(path, allMoves);
             }
         }
 
@@ -452,58 +474,41 @@ public final class FootballBitBoard {
     }
 
     /**
-     * Recursively explore all possible move sequences from current state
+     * Recursively explore all possible move sequences from current state.
+     * Uses executeMove to apply moves immutably.
      */
-    private static void exploreMoves(Board board, List<Direction> currentPath, List<List<Direction>> allMoves) {
-        // Apply the last direction in the path
-        Direction lastDir = currentPath.get(currentPath.size() - 1);
-        int nodeA = getBallPosition(board);
-        int nodeB = neighborIndex[nodeA][lastDir.index];
+    private void exploreMoves(List<Direction> currentPath, List<List<Direction>> allMoves) {
+        // Execute the current path to get the resulting board state
+        FootballBitBoard newBoard = executeMove(currentPath);
 
-        // Move ball
-        board.ballPosition = nodeB;
+        int ballPos = newBoard.getBallPosition();
 
-        // Consume edges
-        clearDirBit(board.dirMask, lastDir.index, nodeA);
-        Direction oppDir = lastDir.opposite();
-        clearDirBit(board.dirMask, oppDir.index, nodeB);
-
-        // Check for goal - move ends immediately
-        if (isTopGoal(nodeB) || isBottomGoal(nodeB)) {
+        // Check if turn ended (goal, first visit, or no outgoing edges)
+        if (isTopGoal(ballPos) || isBottomGoal(ballPos)) {
+            // Goal reached - turn ends
             allMoves.add(new ArrayList<>(currentPath));
             return;
         }
 
-        // Check if B was already visited
-        boolean wasVisited = testBit(board.visited, nodeB);
-
-        if (!wasVisited) {
-            // First visit - move ends here
-            setBit(board.visited, nodeB);
+        // Check if the move ended the turn (player switched)
+        if (newBoard.getActivePlayer() != this.activePlayer) {
+            // Turn ended - this is a complete legal move
             allMoves.add(new ArrayList<>(currentPath));
             return;
         }
 
-        // B was visited - check for outgoing edges
-        if (!outgoingExists(board, nodeB)) {
-            // No outgoing edges - move ends here
-            allMoves.add(new ArrayList<>(currentPath));
-            return;
-        }
-
-        // B was visited and has outgoing edges - must continue
-        // Try all available directions from B
+        // Turn didn't end, must continue - try all available directions from current position
         boolean foundContinuation = false;
         for (Direction dir : Direction.values()) {
-            if (isDirOpen(board, nodeB, dir)) {
+            if (newBoard.isDirOpen(ballPos, dir)) {
                 foundContinuation = true;
                 List<Direction> newPath = new ArrayList<>(currentPath);
                 newPath.add(dir);
-                exploreMoves(board.copy(), newPath, allMoves);
+                exploreMoves(newPath, allMoves);
             }
         }
 
-        // This shouldn't happen if outgoingExists() is correct
+        // Safety check - if no continuation found but we're here, the move ends
         if (!foundContinuation) {
             allMoves.add(new ArrayList<>(currentPath));
         }
@@ -512,18 +517,22 @@ public final class FootballBitBoard {
     // ============= EXECUTE MOVE =============
 
     /**
-     * Execute a complete move sequence.
+     * Execute a complete move sequence immutably.
+     * Returns a new Board with the move applied.
      * The sequence must be valid and complete (ending the turn).
      */
-    public static void executeMove(Board board, List<Direction> moveSequence) {
+    public FootballBitBoard executeMove(List<Direction> moveSequence) {
         if (moveSequence == null || moveSequence.isEmpty()) {
             throw new IllegalArgumentException("Move sequence cannot be empty");
         }
 
-        for (Direction dir : moveSequence) {
-            int nodeA = getBallPosition(board);
+        // Create a copy to work with
+        FootballBitBoard newBoard = this.copy();
 
-            if (!isDirOpen(board, nodeA, dir)) {
+        for (Direction dir : moveSequence) {
+            int nodeA = newBoard.getBallPosition();
+
+            if (!newBoard.isDirOpen(nodeA, dir)) {
                 throw new IllegalArgumentException("Invalid move: direction " + dir +
                     " not available from position " + nodeA);
             }
@@ -531,39 +540,41 @@ public final class FootballBitBoard {
             int nodeB = neighborIndex[nodeA][dir.index];
 
             // Move ball
-            board.ballPosition = nodeB;
+            newBoard.ballPosition = nodeB;
 
             // Consume edges
-            clearDirBit(board.dirMask, dir.index, nodeA);
+            newBoard.clearDirBit(dir.index, nodeA);
             Direction oppDir = dir.opposite();
-            clearDirBit(board.dirMask, oppDir.index, nodeB);
+            newBoard.clearDirBit(oppDir.index, nodeB);
 
             // Check for goal - game ends
             if (isTopGoal(nodeB) || isBottomGoal(nodeB)) {
-                return; // Don't switch player, game is over
+                return newBoard; // Don't switch player, game is over
             }
 
             // Check if B was already visited
-            boolean wasVisited = testBit(board.visited, nodeB);
+            boolean wasVisited = newBoard.testBit(nodeB);
 
             if (!wasVisited) {
                 // First visit - turn ends
-                setBit(board.visited, nodeB);
-                board.activePlayer = (board.activePlayer == Player.SOUTH) ?
+                newBoard.setBit(nodeB);
+                newBoard.activePlayer = (newBoard.activePlayer == Player.SOUTH) ?
                     Player.NORTH : Player.SOUTH;
-                return;
+                return newBoard;
             }
 
             // B was visited - check for outgoing edges
-            if (!outgoingExists(board, nodeB)) {
+            if (!newBoard.outgoingExists(nodeB)) {
                 // No outgoing edges - turn ends
-                board.activePlayer = (board.activePlayer == Player.SOUTH) ?
+                newBoard.activePlayer = (newBoard.activePlayer == Player.SOUTH) ?
                     Player.NORTH : Player.SOUTH;
-                return;
+                return newBoard;
             }
 
             // B was visited and has outgoing edges - continue with next direction
         }
+
+        return newBoard;
     }
 
     // ============= VISUALIZATION =============
@@ -571,11 +582,11 @@ public final class FootballBitBoard {
     /**
      * Get string representation of the board
      */
-    public static String boardToString(Board board) {
+    private String boardToString() {
         StringBuilder sb = new StringBuilder();
-        int ballPos = getBallPosition(board);
+        int ballPos = getBallPosition();
 
-        sb.append("Active Player: ").append(board.activePlayer).append("\n");
+        sb.append("Active Player: ").append(activePlayer).append("\n");
         sb.append("Ball Position: (").append(indexToX(ballPos))
             .append(", ").append(indexToY(ballPos)).append(")\n\n");
 
@@ -591,7 +602,7 @@ public final class FootballBitBoard {
 
                 if (node == ballPos) {
                     sb.append(" O ");
-                } else if (testBit(board.visited, node)) {
+                } else if (testBit(node)) {
                     sb.append(" * ");
                 } else if (isTopGoal(node) || isBottomGoal(node)) {
                     sb.append(" G ");
@@ -606,5 +617,10 @@ public final class FootballBitBoard {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return boardToString();
     }
 }
