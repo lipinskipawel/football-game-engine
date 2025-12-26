@@ -376,6 +376,25 @@ public final class FootballBitBoard {
 
     // ============= UTILITY METHODS =============
 
+    public boolean isGameOver() {
+        if (!outgoingExists(ballPosition)) {
+            return true;
+        }
+        return isTopGoal(ballPosition) || isBottomGoal(ballPosition);
+    }
+
+    public boolean outgoingExists() {
+        return outgoingExists(ballPosition);
+    }
+
+    public boolean isTopGoal() {
+        return isTopGoal(ballPosition);
+    }
+
+    public boolean isBottomGoal() {
+        return isBottomGoal(ballPosition);
+    }
+
     /**
      * Get current ball position
      */
