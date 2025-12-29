@@ -79,7 +79,17 @@ public final class FootballBitBoard {
     public FootballBitBoard(boolean initialize) {
         this();
         if (initialize) {
-            initializeBoard();
+            initializeBoard(false);
+        }
+    }
+
+    /**
+     * Public constructor - initializes board with starting position
+     */
+    public FootballBitBoard(boolean initialize, boolean isFirstPlayerMove) {
+        this();
+        if (initialize) {
+            initializeBoard(isFirstPlayerMove);
         }
     }
 
@@ -325,7 +335,7 @@ public final class FootballBitBoard {
     /**
      * Initialize this board with starting position
      */
-    private void initializeBoard() {
+    private void initializeBoard(boolean isFirstPlayerMove) {
         // Initialize direction masks based on valid neighbors from the field structure
         for (int node = 0; node < TOTAL_NODES; node++) {
             int x = node % GRID_WIDTH;
@@ -371,7 +381,11 @@ public final class FootballBitBoard {
         int startNode = coordToIndex(4, 6);
         ballPosition = startNode;
         setBit(startNode);
-        activePlayer = Player.SOUTH;
+        if (isFirstPlayerMove) {
+            activePlayer = Player.NORTH;
+        } else {
+            activePlayer = Player.SOUTH;
+        }
     }
 
     // ============= UTILITY METHODS =============

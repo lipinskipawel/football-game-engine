@@ -13,6 +13,8 @@ import static io.github.lipinskipawel.board.FootballBitBoard.Direction.S;
 import static io.github.lipinskipawel.board.FootballBitBoard.Direction.SE;
 import static io.github.lipinskipawel.board.FootballBitBoard.Direction.SW;
 import static io.github.lipinskipawel.board.FootballBitBoard.Direction.W;
+import static io.github.lipinskipawel.board.FootballBitBoard.Player.NORTH;
+import static io.github.lipinskipawel.board.FootballBitBoard.Player.SOUTH;
 
 final class FootballBitBoardTest implements WithAssertions {
 
@@ -171,6 +173,24 @@ final class FootballBitBoardTest implements WithAssertions {
 
         printMoves(moves);
         assertThat(moves).hasSize(7);
+    }
+
+    @Test
+    void initialize_football_field() {
+        var startingPosition = new FootballBitBoard(true);
+        assertThat(startingPosition.getActivePlayer()).isEqualTo(SOUTH);
+
+        var afterOneMove = startingPosition.executeMove(List.of(N));
+        assertThat(afterOneMove.getActivePlayer()).isEqualTo(NORTH);
+    }
+
+    @Test
+    void initialize_football_field_for_north_player_to_move() {
+        var startingPosition = new FootballBitBoard(true, true);
+        assertThat(startingPosition.getActivePlayer()).isEqualTo(NORTH);
+
+        var afterOneMove = startingPosition.executeMove(List.of(N));
+        assertThat(afterOneMove.getActivePlayer()).isEqualTo(SOUTH);
     }
 
     private void printMoves(List<List<FootballBitBoard.Direction>> moves) {
