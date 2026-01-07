@@ -67,6 +67,28 @@ java {
 //}
 
 tasks {
+    jar {
+        manifest {
+            attributes["Main-Class"] = "io.github.lipinskipawel.board.Main"
+        }
+        dependsOn("benchmark")
+    }
+
+    // asprof -d 10 -o flamegraph -f flamegraph.html <pid>
+    register<Jar>("benchmark") {
+        archiveBaseName = "benchmark"
+        manifest {
+            attributes["Main-Class"] = "io.github.lipinskipawel.board.Main"
+        }
+        from(sourceSets.main.get().output)
+        standardOutputCapture.start()
+    }
+
+    register<JavaExec>("runBenchmark") {
+        classpath = files(project.tasks.getByName("benchmark"))
+        dependsOn("benchmark")
+    }
+
     withType<JavaCompile> {
         options.encoding = "UTF-8"
     }

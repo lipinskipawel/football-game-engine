@@ -41,7 +41,7 @@ public final class MiniMax {
             var minEval = MAX_VALUE;
             for (var move : legalMoves) {
                 final var eval = minmax(position.executeMove(move), depth - 1, alpha, beta, true);
-                actualEvaluatedMoves++;
+//                actualEvaluatedMoves++;
                 if (eval < minEval) {
                     minEval = eval;
                     bestMove = move;
