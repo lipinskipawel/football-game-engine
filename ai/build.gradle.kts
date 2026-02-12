@@ -12,6 +12,7 @@ repositories {
 
 dependencies {
     implementation(platform("com.github.lipinskipawel:football-platform:(1.0.0, 2.0.0)"))
+    implementation(project(":game"))
 
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
@@ -79,6 +80,15 @@ tasks {
         archiveBaseName = "benchmark"
         manifest {
             attributes["Main-Class"] = "io.github.lipinskipawel.board.Main"
+        }
+        from(sourceSets.main.get().output)
+        standardOutputCapture.start()
+    }
+
+    register<Jar>("benchmarkSnail") {
+        archiveBaseName = "benchmark"
+        manifest {
+            attributes["Main-Class"] = "io.github.lipinskipawel.board.snail.MainSnail"
         }
         from(sourceSets.main.get().output)
         standardOutputCapture.start()
