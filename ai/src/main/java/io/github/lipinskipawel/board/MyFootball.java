@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static java.lang.System.arraycopy;
 
@@ -46,6 +47,38 @@ public final class MyFootball {
         public Direction opposite() {
             return values()[(index + 4) % 8];
         }
+
+        public static Direction from(int direction) {
+            if (direction == 0) {
+                return N;
+            }
+            if (direction == 1) {
+                return NE;
+            }
+            if (direction == 2) {
+                return E;
+            }
+            if (direction == 3) {
+                return SE;
+            }
+            if (direction == 4) {
+                return S;
+            }
+            if (direction == 5) {
+                return SW;
+            }
+            if (direction == 6) {
+                return W;
+            }
+            if (direction == 7) {
+                return NW;
+            }
+            return null;
+        }
+    }
+
+    private int opposite(int dir) {
+        return (dir + 4) % 8;
     }
 
     // Board state fields
@@ -80,23 +113,23 @@ public final class MyFootball {
         this.player = myFootball.player;
     }
 
-    public List<List<Direction>> legalMoves() {
+    public List<List<Integer>> legalMoves() {
         final class Level {
             private final MyFootball board;
-            private final List<Direction> moves;
+            private final List<Integer> moves;
 
             Level(MyFootball board) {
                 this.board = board;
                 this.moves = new ArrayList<>();
             }
 
-            Level(MyFootball board, List<Direction> stack) {
+            Level(MyFootball board, List<Integer> stack) {
                 this.board = board;
                 this.moves = stack;
             }
 
             // this must be next improvement
-            List<Direction> push(Direction direction) {
+            List<Integer> push(int direction) {
 //                moves.add(direction);
 //                return moves;
                 final var newStack = new ArrayList<>(moves);
@@ -108,10 +141,10 @@ public final class MyFootball {
         var currentLevels = new ArrayDeque<Level>();
         currentLevels.push(new Level(new MyFootball(this)));
 
-        List<List<Direction>> allMoves = new ArrayList<>();
+        List<List<Integer>> allMoves = new ArrayList<>();
         while (!currentLevels.isEmpty()) {
             final var level = currentLevels.pop();
-            for (var dir : Direction.values()) {
+            for (var dir = 0; dir < 8; dir++) {
 
                 if (allowToMove(level.board, dir)) {
                     executeMove(level.board, dir);
@@ -141,17 +174,17 @@ public final class MyFootball {
     }
 
     public void executeMove(Direction direction) {
-        executeMove(this, direction);
+        executeMove(this, direction.index);
     }
 
     public void undoPlayerMove(List<Direction> directions) {
         for (var dir : directions) {
-            undoMove(dir);
+            undoMove(dir.index);
         }
         switchPlayer();
     }
 
-    public void undoMove(Direction direction) {
+    public void undoMove(int direction) {
         undoMove(this, direction);
     }
 
@@ -165,7 +198,7 @@ public final class MyFootball {
 
     public boolean isItEnd(MyFootball board) {
         var count = 0;
-        for (var dir : Direction.values()) {
+        for (var dir =0; dir < 8; dir++) {
             if (allowToMove(board, dir)) {
                 count++;
             }
@@ -173,8 +206,8 @@ public final class MyFootball {
         return count == 7 || count == 0;
     }
 
-    private boolean allowToMove(MyFootball board, Direction direction) {
-        final var increaseBit = direction.index << 1; // move right, so we can catch 15. 7 becomes 14 --- 0111 -> 1110
+    private boolean allowToMove(MyFootball board, int direction) {
+        final var increaseBit = direction << 1; // move right, so we can catch 15. 7 becomes 14 --- 0111 -> 1110
         final var reduce64 = board.ballPosition >>> 6; // either 1, >= 64, or < 0
         int longIndex = increaseBit + reduce64; // we have 16 buckets
 
@@ -185,20 +218,20 @@ public final class MyFootball {
         return (flags & mask) == 0;
     }
 
-    private void executeMove(MyFootball board, Direction direction) {
+    private void executeMove(MyFootball board, int direction) {
         blockDirection(board, direction);
-        board.ballPosition += moveBall[direction.index];
-        blockDirection(board, direction.opposite());
+        board.ballPosition += moveBall[direction];
+        blockDirection(board, opposite(direction));
     }
 
-    private void undoMove(MyFootball board, Direction direction) {
-        unblockDirection(board, direction.opposite());
-        board.ballPosition += undoBall[direction.index];
+    private void undoMove(MyFootball board, int direction) {
+        unblockDirection(board, opposite(direction));
+        board.ballPosition += undoBall[direction];
         unblockDirection(board, direction);
     }
 
-    private void blockDirection(MyFootball board, Direction direction) {
-        final var increaseBit = direction.index << 1;
+    private void blockDirection(MyFootball board, int direction) {
+        final var increaseBit = direction << 1;
         final var reduce64 = board.ballPosition >>> 6;
         final int longIndex = increaseBit + reduce64;
 
@@ -209,8 +242,8 @@ public final class MyFootball {
         board.dirMask[longIndex] |= mask;
     }
 
-    private void unblockDirection(MyFootball board, Direction direction) {
-        final var increaseBit = direction.index << 1;
+    private void unblockDirection(MyFootball board, int direction) {
+        final var increaseBit = direction << 1;
         final var reduce64 = board.ballPosition >>> 6;
         final int longIndex = increaseBit + reduce64;
 

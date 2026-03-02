@@ -52,14 +52,14 @@ class MyFootballTest implements WithAssertions {
 
         // then
         assertThat(legalMoves).containsExactlyInAnyOrderElementsOf(List.of(
-            List.of(N),
-            List.of(NE),
-            List.of(E),
-            List.of(SE),
-            List.of(S),
-            List.of(SW),
-            List.of(W),
-            List.of(NW)
+            List.of(N.index),
+            List.of(NE.index),
+            List.of(E.index),
+            List.of(SE.index),
+            List.of(S.index),
+            List.of(SW.index),
+            List.of(W.index),
+            List.of(NW.index)
         ));
         assertThat(myFootball).isEqualTo(new MyFootball());
     }
@@ -75,13 +75,13 @@ class MyFootballTest implements WithAssertions {
 
         // then
         assertThat(legalMoves).containsExactlyInAnyOrderElementsOf(List.of(
-            List.of(N),
-            List.of(NE),
-            List.of(E),
-            List.of(SE),
-            List.of(SW),
-            List.of(W),
-            List.of(NW)
+            List.of(N.index),
+            List.of(NE.index),
+            List.of(E.index),
+            List.of(SE.index),
+            List.of(SW.index),
+            List.of(W.index),
+            List.of(NW.index)
         ));
     }
 
@@ -96,13 +96,13 @@ class MyFootballTest implements WithAssertions {
 
         // then
         assertThat(legalMoves).containsExactlyInAnyOrderElementsOf(List.of(
-            List.of(N),
-            List.of(NE),
-            List.of(E),
-            List.of(SE),
-            List.of(S),
-            List.of(SW),
-            List.of(NW)
+            List.of(N.index),
+            List.of(NE.index),
+            List.of(E.index),
+            List.of(SE.index),
+            List.of(S.index),
+            List.of(SW.index),
+            List.of(NW.index)
         ));
     }
 
@@ -139,18 +139,18 @@ class MyFootballTest implements WithAssertions {
 
         // then
         assertThat(legalMoves).containsExactlyInAnyOrderElementsOf(List.of(
-            List.of(NE),
-            List.of(E),
-            List.of(N),
-            List.of(NW),
-            List.of(S),
-            List.of(SE),
-            List.of(SW, E),
-            List.of(SW, SW),
-            List.of(SW, NW),
-            List.of(SW, W),
-            List.of(SW, S),
-            List.of(SW, SE)
+            List.of(NE.index),
+            List.of(E.index),
+            List.of(N.index),
+            List.of(NW.index),
+            List.of(S.index),
+            List.of(SE.index),
+            List.of(SW.index, E.index),
+            List.of(SW.index, SW.index),
+            List.of(SW.index, NW.index),
+            List.of(SW.index, W.index),
+            List.of(SW.index, S.index),
+            List.of(SW.index, SE.index)
         ));
     }
 }

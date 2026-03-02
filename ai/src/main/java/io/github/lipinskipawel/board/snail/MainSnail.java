@@ -3,10 +3,10 @@ package io.github.lipinskipawel.board.snail;
 final class MainSnail {
 
     public static void main(String[] args) {
-        final var board = AiSnail.snailFootballField();
-        System.out.println("AI Snail test");
-//        final var board = MySnail.snailFootballField();
-//        System.out.println("My Snail test");
+//        final var board = AiSnail.snailFootballField();
+//        System.out.println("AI Snail test");
+        final var board = MySnail.snailFootballField();
+        System.out.println("My Snail test");
 
         var l = System.nanoTime();
         var moves = board.legalMoves();
