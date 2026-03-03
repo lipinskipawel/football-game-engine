@@ -153,4 +153,205 @@ class MyFootballTest implements WithAssertions {
             List.of(SW.index, SE.index)
         ));
     }
+
+    @Test
+    void draw_board_correctly_and_computes_legal_move_when_close_to_W_wall() {
+        // given
+        final var myFootball = new MyFootball();
+
+        // and init board
+        myFootball.initBoard();
+
+        // move to left edge
+        List.of(NW, NW, W).forEach(myFootball::executeMove);
+
+        // when
+        final var legalMoves = myFootball.legalMoves();
+
+        // then
+        assertThat(legalMoves).containsExactlyInAnyOrderElementsOf(List.of(
+            List.of(N.index),
+            List.of(NE.index),
+            List.of(SE.index),
+            List.of(S.index),
+            List.of(SW.index, E.index),
+            List.of(SW.index, SE.index),
+            List.of(W.index, NE.index),
+            List.of(W.index, SE.index),
+            List.of(NW.index, NE.index),
+            List.of(NW.index, E.index)
+        ));
+    }
+
+    @Test
+    void draw_board_correctly_and_computes_legal_move_when_on_W_wall() {
+        // given
+        final var myFootball = new MyFootball();
+
+        // and init board
+        myFootball.initBoard();
+
+        // move to left edge
+        List.of(W, W, W, W).forEach(myFootball::executeMove);
+
+        // when
+        final var legalMoves = myFootball.legalMoves();
+
+        // then
+        assertThat(legalMoves).containsExactlyInAnyOrderElementsOf(List.of(
+            List.of(NE.index),
+            List.of(SE.index)
+        ));
+    }
+
+    @Test
+    void draw_board_correctly_and_computes_legal_move_when_close_to_E_wall() {
+        // given
+        final var myFootball = new MyFootball();
+
+        // and init board
+        myFootball.initBoard();
+
+        // move to left edge
+        List.of(SE, SE, E).forEach(myFootball::executeMove);
+
+        // when
+        final var legalMoves = myFootball.legalMoves();
+
+        // then
+        assertThat(legalMoves).containsExactlyInAnyOrderElementsOf(List.of(
+            List.of(NW.index),
+            List.of(N.index),
+            List.of(S.index),
+            List.of(SW.index),
+            List.of(NE.index, NW.index),
+            List.of(NE.index, W.index),
+            List.of(E.index, NW.index),
+            List.of(E.index, SW.index),
+            List.of(SE.index, W.index),
+            List.of(SE.index, SW.index)
+        ));
+    }
+
+    @Test
+    void corner_NW_have_0_moves() {
+        // given
+        final var myFootball = new MyFootball();
+        myFootball.initBoard();
+
+        // and
+        List.of(NW, NW, NW, N, NW).forEach(myFootball::executeMove);
+
+        // when
+        final var legalMoves = myFootball.legalMoves();
+
+        // then
+        assertThat(legalMoves).hasSize(0);
+    }
+
+    @Test
+    void corner_NE_have_0_moves() {
+        // given
+        final var myFootball = new MyFootball();
+        myFootball.initBoard();
+
+        // and
+        List.of(NE, NE, NE, N, NE).forEach(myFootball::executeMove);
+
+        // when
+        final var legalMoves = myFootball.legalMoves();
+
+        // then
+        assertThat(legalMoves).hasSize(0);
+    }
+
+    @Test
+    void corner_SE_have_0_moves() {
+        // given
+        final var myFootball = new MyFootball();
+        myFootball.initBoard();
+
+        // and
+        List.of(SE, SE, SE, S, SE).forEach(myFootball::executeMove);
+
+        // when
+        final var legalMoves = myFootball.legalMoves();
+
+        // then
+        assertThat(legalMoves).hasSize(0);
+    }
+
+    @Test
+    void corner_SW_have_0_moves() {
+        // given
+        final var myFootball = new MyFootball();
+        myFootball.initBoard();
+
+        // and
+        List.of(SW, SW, SW, S, SW).forEach(myFootball::executeMove);
+
+        // when
+        final var legalMoves = myFootball.legalMoves();
+
+        // then
+        assertThat(legalMoves).hasSize(0);
+    }
+
+    @Test
+    void make_N_goal() {
+        // given
+        final var left = new MyFootball();
+        final var center = new MyFootball();
+        final var right = new MyFootball();
+        left.initBoard();
+        center.initBoard();
+        right.initBoard();
+
+        // and
+        List.of(N, N, N, N, N).forEach(left::executeMove);
+        left.executeMove(NW);
+        List.of(N, N, N, N, N).forEach(center::executeMove);
+        center.executeMove(N);
+        List.of(N, N, N, N, N).forEach(right::executeMove);
+        right.executeMove(NE);
+
+        // when
+        final var leftMoves = left.legalMoves();
+        final var centerMoves = center.legalMoves();
+        final var rightMoves = right.legalMoves();
+
+        // then
+        assertThat(leftMoves).hasSize(0);
+        assertThat(centerMoves).hasSize(0);
+        assertThat(rightMoves).hasSize(0);
+    }
+
+    @Test
+    void make_S_goal() {
+        // given
+        final var left = new MyFootball();
+        final var center = new MyFootball();
+        final var right = new MyFootball();
+        left.initBoard();
+        center.initBoard();
+        right.initBoard();
+
+        // and
+        List.of(S, S, S, S, S).forEach(left::executeMove);
+        left.executeMove(SW);
+        List.of(S, S, S, S, S).forEach(center::executeMove);
+        center.executeMove(S);
+        List.of(S, S, S, S, S).forEach(right::executeMove);
+        right.executeMove(SE);
+
+        // when
+        final var leftMoves = left.legalMoves();
+        final var centerMoves = center.legalMoves();
+        final var rightMoves = right.legalMoves();
+
+        // then
+        assertThat(leftMoves).hasSize(0);
+        assertThat(centerMoves).hasSize(0);
+        assertThat(rightMoves).hasSize(0);
+    }
 }

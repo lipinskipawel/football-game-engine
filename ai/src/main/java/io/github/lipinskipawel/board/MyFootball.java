@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static java.lang.System.arraycopy;
 
@@ -47,34 +46,6 @@ public final class MyFootball {
         public Direction opposite() {
             return values()[(index + 4) % 8];
         }
-
-        public static Direction from(int direction) {
-            if (direction == 0) {
-                return N;
-            }
-            if (direction == 1) {
-                return NE;
-            }
-            if (direction == 2) {
-                return E;
-            }
-            if (direction == 3) {
-                return SE;
-            }
-            if (direction == 4) {
-                return S;
-            }
-            if (direction == 5) {
-                return SW;
-            }
-            if (direction == 6) {
-                return W;
-            }
-            if (direction == 7) {
-                return NW;
-            }
-            return null;
-        }
     }
 
     private int opposite(int dir) {
@@ -102,6 +73,10 @@ public final class MyFootball {
         visited = new long[LONGS_PER_BITBOARD];
         ballPosition = 58;
         player = 0;
+    }
+
+    public void initBoard() {
+        drawBoard(this);
     }
 
     private MyFootball(MyFootball myFootball) {
@@ -198,7 +173,7 @@ public final class MyFootball {
 
     public boolean isItEnd(MyFootball board) {
         var count = 0;
-        for (var dir =0; dir < 8; dir++) {
+        for (var dir = 0; dir < 8; dir++) {
             if (allowToMove(board, dir)) {
                 count++;
             }
@@ -212,9 +187,9 @@ public final class MyFootball {
         int longIndex = increaseBit + reduce64; // we have 16 buckets
 
         final var flags = board.dirMask[longIndex];
-        final var checkBit = board.ballPosition - 1;
+        final var checkBit = (board.ballPosition - 1) & 63; // bit index resets within each long
 
-        final var mask = 1 << checkBit;
+        final var mask = 1L << checkBit; // long literal, so the shift operates on 64 bits instead of 32, avoiding Java's int shift wrapping
         return (flags & mask) == 0;
     }
 
@@ -236,9 +211,9 @@ public final class MyFootball {
         final int longIndex = increaseBit + reduce64;
 
         final var flags = board.dirMask[longIndex];
-        final var turnOnBit = board.ballPosition - 1;
+        final var turnOnBit = (board.ballPosition - 1) & 63;
 
-        final var mask = 1 << turnOnBit;
+        final var mask = 1L << turnOnBit;
         board.dirMask[longIndex] |= mask;
     }
 
@@ -248,9 +223,9 @@ public final class MyFootball {
         final int longIndex = increaseBit + reduce64;
 
         final var flags = board.dirMask[longIndex];
-        final var turnOffBit = board.ballPosition - 1;
+        final var turnOffBit = (board.ballPosition - 1) & 63;
 
-        final var prepareMask = 1 << turnOffBit;
+        final var prepareMask = 1L << turnOffBit;
         final var mask = ~prepareMask;
         board.dirMask[longIndex] &= mask;
     }
@@ -288,5 +263,261 @@ public final class MyFootball {
             ", ballPosition=" + ballPosition +
             ", player=" + player +
             '}';
+    }
+
+    private void drawBoard(MyFootball board) {
+        board.ballPosition = 9;
+        goTopLeftToGoal(board);
+        goAroundTopGoal(board);
+        goTopRightToGoal(board);
+
+        goBottom(board);
+
+        goBottomRightToGoal(board);
+        goAroundBottomGoal(board);
+        goBottomLeftToGoal(board);
+
+        goUp(board);
+        board.ballPosition = 58;
+    }
+
+    private void goTopLeftToGoal(MyFootball board) {
+        blockDirection(board, Direction.N.index);
+        blockDirection(board, Direction.NE.index);
+        executeMove(Direction.E);
+
+        blockDirection(board, Direction.NW.index);
+        blockDirection(board, Direction.N.index);
+        blockDirection(board, Direction.NE.index);
+        executeMove(Direction.E);
+
+        blockDirection(board, Direction.NW.index);
+        blockDirection(board, Direction.N.index);
+        blockDirection(board, Direction.NE.index);
+        executeMove(Direction.E);
+
+        blockDirection(board, Direction.NW.index);
+    }
+
+    private void goAroundTopGoal(MyFootball board) {
+        executeMove(Direction.N);
+        blockDirection(board, Direction.N.index);
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.SE.index);
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.W.index);
+        blockDirection(board, Direction.NW.index);
+
+        executeMove(Direction.E);
+        blockDirection(board, Direction.N.index);
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.SE.index);
+        blockDirection(board, Direction.S.index);
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.NW.index);
+        executeMove(Direction.E);
+
+        blockDirection(board, Direction.N.index);
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.E.index);
+        blockDirection(board, Direction.SE.index);
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.NW.index);
+
+        executeMove(Direction.S);
+    }
+
+    private void goTopRightToGoal(MyFootball board) {
+        blockDirection(board, Direction.NE.index);
+        executeMove(Direction.E);
+
+        blockDirection(board, Direction.NW.index);
+        blockDirection(board, Direction.N.index);
+        blockDirection(board, Direction.NE.index);
+        executeMove(Direction.E);
+
+        blockDirection(board, Direction.NW.index);
+        blockDirection(board, Direction.N.index);
+        blockDirection(board, Direction.NE.index);
+        executeMove(Direction.E);
+
+        blockDirection(board, Direction.NW.index);
+        blockDirection(board, Direction.N.index);
+    }
+
+    private void goBottom(MyFootball board) {
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.E.index);
+        blockDirection(board, Direction.SE.index);
+        executeMove(Direction.S);
+
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.E.index);
+        blockDirection(board, Direction.SE.index);
+        executeMove(Direction.S);
+
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.E.index);
+        blockDirection(board, Direction.SE.index);
+        executeMove(Direction.S);
+
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.E.index);
+        blockDirection(board, Direction.SE.index);
+        executeMove(Direction.S);
+
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.E.index);
+        blockDirection(board, Direction.SE.index);
+        executeMove(Direction.S);
+
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.E.index);
+        blockDirection(board, Direction.SE.index);
+        executeMove(Direction.S);
+
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.E.index);
+        blockDirection(board, Direction.SE.index);
+        executeMove(Direction.S);
+
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.E.index);
+        blockDirection(board, Direction.SE.index);
+        executeMove(Direction.S);
+
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.E.index);
+        blockDirection(board, Direction.SE.index);
+        executeMove(Direction.S);
+
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.E.index);
+        blockDirection(board, Direction.SE.index);
+        executeMove(Direction.S);
+
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.E.index);
+        blockDirection(board, Direction.SE.index);
+    }
+
+    private void goBottomRightToGoal(MyFootball board) {
+        blockDirection(board, Direction.S.index);
+        blockDirection(board, Direction.SW.index);
+        executeMove(Direction.W);
+
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.S.index);
+        blockDirection(board, Direction.SE.index);
+        executeMove(Direction.W);
+
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.S.index);
+        blockDirection(board, Direction.SE.index);
+        executeMove(Direction.W);
+
+        blockDirection(board, Direction.SE.index);
+    }
+
+    private void goAroundBottomGoal(MyFootball board) {
+        executeMove(Direction.S);
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.E.index);
+        blockDirection(board, Direction.SE.index);
+        blockDirection(board, Direction.S.index);
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.NW.index);
+
+        executeMove(Direction.W);
+        blockDirection(board, Direction.N.index);
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.SE.index);
+        blockDirection(board, Direction.S.index);
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.NW.index);
+
+        executeMove(Direction.W);
+        blockDirection(board, Direction.NE.index);
+        blockDirection(board, Direction.SE.index);
+        blockDirection(board, Direction.S.index);
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.W.index);
+        blockDirection(board, Direction.NW.index);
+
+        executeMove(Direction.N);
+    }
+
+    private void goBottomLeftToGoal(MyFootball board) {
+        blockDirection(board, Direction.SW.index);
+        executeMove(Direction.W);
+
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.S.index);
+        blockDirection(board, Direction.SE.index);
+        executeMove(Direction.W);
+
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.S.index);
+        blockDirection(board, Direction.SE.index);
+        executeMove(Direction.W);
+
+        blockDirection(board, Direction.S.index);
+        blockDirection(board, Direction.SE.index);
+    }
+
+    private void goUp(MyFootball board) {
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.W.index);
+        blockDirection(board, Direction.NW.index);
+        executeMove(Direction.N);
+
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.W.index);
+        blockDirection(board, Direction.NW.index);
+        executeMove(Direction.N);
+
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.W.index);
+        blockDirection(board, Direction.NW.index);
+        executeMove(Direction.N);
+
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.W.index);
+        blockDirection(board, Direction.NW.index);
+        executeMove(Direction.N);
+
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.W.index);
+        blockDirection(board, Direction.NW.index);
+        executeMove(Direction.N);
+
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.W.index);
+        blockDirection(board, Direction.NW.index);
+        executeMove(Direction.N);
+
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.W.index);
+        blockDirection(board, Direction.NW.index);
+        executeMove(Direction.N);
+
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.W.index);
+        blockDirection(board, Direction.NW.index);
+        executeMove(Direction.N);
+
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.W.index);
+        blockDirection(board, Direction.NW.index);
+        executeMove(Direction.N);
+
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.W.index);
+        blockDirection(board, Direction.NW.index);
+        executeMove(Direction.N);
+
+        blockDirection(board, Direction.SW.index);
+        blockDirection(board, Direction.W.index);
+        blockDirection(board, Direction.NW.index);
     }
 }
