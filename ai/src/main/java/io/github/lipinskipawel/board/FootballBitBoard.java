@@ -1,6 +1,7 @@
 package io.github.lipinskipawel.board;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public final class FootballBitBoard {
@@ -651,9 +652,19 @@ public final class FootballBitBoard {
 
         return sb.toString();
     }
+//
+//    @Override
+//    public String toString() {
+//        return boardToString();
+//    }
 
     @Override
     public String toString() {
-        return boardToString();
+        return "FootballBitBoard{" +
+            "dirMask=" + Arrays.toString(dirMask) +
+            ", visited=" + Arrays.toString(visited) +
+            ", ballPosition=" + ballPosition +
+            ", activePlayer=" + activePlayer +
+            '}';
     }
 }

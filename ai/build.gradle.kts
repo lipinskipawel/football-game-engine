@@ -94,6 +94,15 @@ tasks {
         standardOutputCapture.start()
     }
 
+    register<Jar>("benchmarkMiniMax") {
+        archiveBaseName = "benchmark"
+        manifest {
+            attributes["Main-Class"] = "io.github.lipinskipawel.board.minimax.MainMiniMax"
+        }
+        from(sourceSets.main.get().output)
+        standardOutputCapture.start()
+    }
+
     register<JavaExec>("runBenchmark") {
         classpath = files(project.tasks.getByName("benchmark"))
         dependsOn("benchmark")

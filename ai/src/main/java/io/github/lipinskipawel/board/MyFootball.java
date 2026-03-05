@@ -89,6 +89,9 @@ public final class MyFootball {
     }
 
     public List<List<Integer>> legalMoves() {
+        if (isGameOver()) {
+            return List.of();
+        }
         final class Level {
             private final MyFootball board;
             private final List<Integer> moves;
@@ -148,13 +151,31 @@ public final class MyFootball {
         switchPlayer();
     }
 
+    public void executePlayerMoveInt(List<Integer> directions) {
+        for (var dir : directions) {
+            executeMove(dir);
+        }
+        switchPlayer();
+    }
+
+    public void executeMove(Integer direction) {
+        executeMove(this, direction);
+    }
+
     public void executeMove(Direction direction) {
         executeMove(this, direction.index);
     }
 
     public void undoPlayerMove(List<Direction> directions) {
-        for (var dir : directions) {
-            undoMove(dir.index);
+        for (int i = directions.size() - 1; i >= 0; i--) {
+            undoMove(directions.get(i).index);
+        }
+        switchPlayer();
+    }
+
+    public void undoPlayerMoveInt(List<Integer> directions) {
+        for (int i = directions.size() - 1; i >= 0; i--) {
+            undoMove(directions.get(i));
         }
         switchPlayer();
     }
@@ -167,11 +188,11 @@ public final class MyFootball {
         player ^= 1;
     }
 
-    public boolean isFistToMove() {
+    public boolean isFirstToMove() {
         return player == 0;
     }
 
-    public boolean isItEnd(MyFootball board) {
+    private boolean isItEnd(MyFootball board) {
         var count = 0;
         for (var dir = 0; dir < 8; dir++) {
             if (allowToMove(board, dir)) {
@@ -181,13 +202,31 @@ public final class MyFootball {
         return count == 7 || count == 0;
     }
 
+    public boolean isGameOver() {
+        var count = 0;
+        for (var dir = 0; dir < 8; dir++) {
+            if (allowToMove(this, dir)) {
+                count++;
+            }
+        }
+        return count == 0;
+    }
+
+    public boolean isTopGoal() {
+        return ballPosition == 3 || ballPosition == 4 || ballPosition == 5;
+    }
+
+    public boolean isBottomGoal() {
+        return ballPosition == 111 || ballPosition == 112 || ballPosition == 113;
+    }
+
     private boolean allowToMove(MyFootball board, int direction) {
         final var increaseBit = direction << 1; // move right, so we can catch 15. 7 becomes 14 --- 0111 -> 1110
         final var reduce64 = board.ballPosition >>> 6; // either 1, >= 64, or < 0
         int longIndex = increaseBit + reduce64; // we have 16 buckets
 
         final var flags = board.dirMask[longIndex];
-        final var checkBit = (board.ballPosition - 1) & 63; // bit index resets within each long
+        final var checkBit = board.ballPosition & 63; // bit index resets within each long
 
         final var mask = 1L << checkBit; // long literal, so the shift operates on 64 bits instead of 32, avoiding Java's int shift wrapping
         return (flags & mask) == 0;
@@ -211,7 +250,7 @@ public final class MyFootball {
         final int longIndex = increaseBit + reduce64;
 
         final var flags = board.dirMask[longIndex];
-        final var turnOnBit = (board.ballPosition - 1) & 63;
+        final var turnOnBit = board.ballPosition & 63;
 
         final var mask = 1L << turnOnBit;
         board.dirMask[longIndex] |= mask;
@@ -223,7 +262,7 @@ public final class MyFootball {
         final int longIndex = increaseBit + reduce64;
 
         final var flags = board.dirMask[longIndex];
-        final var turnOffBit = (board.ballPosition - 1) & 63;
+        final var turnOffBit = board.ballPosition & 63;
 
         final var prepareMask = 1L << turnOffBit;
         final var mask = ~prepareMask;

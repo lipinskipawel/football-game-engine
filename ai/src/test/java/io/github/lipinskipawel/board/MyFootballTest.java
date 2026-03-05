@@ -30,6 +30,19 @@ class MyFootballTest implements WithAssertions {
     }
 
     @Test
+    void move_and_undo_the_same_complex_move() {
+        // given
+        final var myFootball = new MyFootball();
+        myFootball.executePlayerMove(List.of(N, E, SW, SW));
+
+        // when
+        myFootball.undoPlayerMove(List.of(N, E, SW, SW));
+
+        // then
+        assertThat(myFootball).isEqualTo(new MyFootball());
+    }
+
+    @Test
     void legal_moves_does_not_change_state() {
         // given
         final var myFootball = new MyFootball();
@@ -353,5 +366,41 @@ class MyFootballTest implements WithAssertions {
         assertThat(leftMoves).hasSize(0);
         assertThat(centerMoves).hasSize(0);
         assertThat(rightMoves).hasSize(0);
+    }
+
+    @Test
+    void close_to_bottom_left_goal() {
+        // given
+        final var board = new MyFootball();
+        board.initBoard();
+        System.out.println(board.isFirstToMove());
+
+        // and
+        List.of(SW, S, S, S).forEach(board::executeMove);
+        System.out.println("Player BEFORE goal: " + board.isFirstToMove());
+        List.of(S, SE).forEach(board::executeMove);
+        System.out.println("Player BEFORE goal: " + board.isFirstToMove());
+        System.out.println(board.isGameOver());
+        System.out.println(board.isTopGoal());
+        System.out.println(board.isBottomGoal());
+
+        // when
+        final var legalMoves = board.legalMoves();
+
+        // then
+        System.out.println(legalMoves.size());
+//        assertThat(legalMoves).containsExactlyInAnyOrderElementsOf(List.of(
+//            List.of(NE.index),
+//            List.of(E.index),
+//            List.of(SE.index),
+//            List.of(S.index, NE.index),
+//            List.of(S.index, E.index),
+//            List.of(S.index, SE.index),
+//            List.of(S.index, NW.index),
+//            List.of(SW.index, N.index),
+//            List.of(SW.index, NW.index),
+//            List.of(W.index),
+//            List.of(NW.index)
+//        ));
     }
 }

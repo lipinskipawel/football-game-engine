@@ -19,7 +19,9 @@ final class MiniMaxTest implements WithAssertions {
 
     @Test
     void find_trap() {
-        var position = new FootballBitBoard(true)
+        var position = new FootballBitBoard(true);
+        System.out.println(position.getActivePlayer());
+        position = position
             .executeMove(List.of(N))
             .executeMove(List.of(NW))
             .executeMove(List.of(NE))
@@ -41,6 +43,7 @@ final class MiniMaxTest implements WithAssertions {
             .executeMove(List.of(N, NW, NE, SE))
             .executeMove(List.of(S, SW, NW, E, SW, E, S))
             .executeMove(List.of(NE, E, E, E, E, NE));
+        System.out.println(position.getActivePlayer());
 
         var bestMove = bestMove(position, 2);
 

@@ -34,6 +34,42 @@ final class FootballBitBoardTest implements WithAssertions {
     }
 
     @Test
+    void printing_board2() {
+        var board = new FootballBitBoard(true, true);
+        System.out.println(board.getActivePlayer());
+        board = board
+            .executeMove(List.of(SW))
+            .executeMove(List.of(S))
+            .executeMove(List.of(S))
+            .executeMove(List.of(S));
+
+        System.out.println("Player BEFORE goal: " + board.getActivePlayer());
+        board = board.executeMove(List.of(S, SE)); // goal
+        System.out.println("Player AFTER goal: " + board.getActivePlayer());
+        System.out.println(board.isGameOver());
+        System.out.println(board.isTopGoal());
+        System.out.println(board.isBottomGoal());
+
+        var moves = board.legalMoves();
+
+        assertThat(moves).hasSize(11);
+//        printMoves(moves);
+//        assertThat(moves).containsExactlyInAnyOrderElementsOf(List.of(
+//            List.of(NE),
+//            List.of(E),
+//            List.of(SE),
+//            List.of(S, NE),
+//            List.of(S, E),
+//            List.of(S, SE),
+//            List.of(S, NW),
+//            List.of(SW, N),
+//            List.of(SW, NW),
+//            List.of(W),
+//            List.of(NW)
+//        ));
+    }
+
+    @Test
     void left_side_of_walls_on_football_field() {
         var board = new FootballBitBoard(true)
             .executeMove(List.of(W))
