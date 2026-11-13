@@ -17,13 +17,14 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("org.assertj:assertj-core")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 java {
     withJavadocJar()
     withSourcesJar()
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
@@ -110,6 +111,7 @@ tasks {
 
     withType<JavaCompile> {
         options.encoding = "UTF-8"
+        options.release.set(11)
     }
 
     test {
